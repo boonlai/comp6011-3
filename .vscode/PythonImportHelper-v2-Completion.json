@@ -36,56 +36,6 @@
         "documentation": {}
     },
     {
-        "label": "os",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "os",
-        "description": "os",
-        "detail": "os",
-        "documentation": {}
-    },
-    {
-        "label": "butter",
-        "importPath": "scipy.signal",
-        "description": "scipy.signal",
-        "isExtraImport": true,
-        "detail": "scipy.signal",
-        "documentation": {}
-    },
-    {
-        "label": "sosfiltfilt",
-        "importPath": "scipy.signal",
-        "description": "scipy.signal",
-        "isExtraImport": true,
-        "detail": "scipy.signal",
-        "documentation": {}
-    },
-    {
-        "label": "resample",
-        "importPath": "scipy.signal",
-        "description": "scipy.signal",
-        "isExtraImport": true,
-        "detail": "scipy.signal",
-        "documentation": {}
-    },
-    {
-        "label": "matplotlib.pyplot",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "matplotlib.pyplot",
-        "description": "matplotlib.pyplot",
-        "detail": "matplotlib.pyplot",
-        "documentation": {}
-    },
-    {
-        "label": "Image",
-        "importPath": "PIL",
-        "description": "PIL",
-        "isExtraImport": true,
-        "detail": "PIL",
-        "documentation": {}
-    },
-    {
         "label": "load_raw_data",
         "kind": 2,
         "importPath": "ptb-xl.example_physionet",
@@ -209,24 +159,6 @@
         "description": "ptb-xl.example_physionet",
         "peekOfCode": "y_test = Y[Y.strat_fold == test_fold].diagnostic_superclass",
         "detail": "ptb-xl.example_physionet",
-        "documentation": {}
-    },
-    {
-        "label": "bandpass_and_resample",
-        "kind": 2,
-        "importPath": "preprocess",
-        "description": "preprocess",
-        "peekOfCode": "def bandpass_and_resample(\n    sig: np.ndarray,\n    fs_orig: float,\n    fs_target: float = 100.0,\n    lowcut: float = 0.5,\n    highcut: float = 40.0,\n) -> np.ndarray:\n    \"\"\"\n    3rd-order Butterworth bandpass at [lowcut, highcut] Hz,\n    then resample to fs_target if fs_orig != fs_target.",
-        "detail": "preprocess",
-        "documentation": {}
-    },
-    {
-        "label": "plot_and_save_ecg_image",
-        "kind": 2,
-        "importPath": "preprocess",
-        "description": "preprocess",
-        "peekOfCode": "def plot_and_save_ecg_image(\n    record_path: str,\n    output_path: str,\n    fs: float = 100.0,\n    window_sec: int = 2,\n    resize_px: int = 518,\n    dpi: int = 150,\n):\n    \"\"\"\n    1) Load a low-res (100 Hz) PTB-XL record",
-        "detail": "preprocess",
         "documentation": {}
     }
 ]
