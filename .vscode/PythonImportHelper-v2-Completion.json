@@ -1,0 +1,232 @@
+[
+    {
+        "label": "pandas",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "pandas",
+        "description": "pandas",
+        "detail": "pandas",
+        "documentation": {}
+    },
+    {
+        "label": "numpy",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "numpy",
+        "description": "numpy",
+        "detail": "numpy",
+        "documentation": {}
+    },
+    {
+        "label": "wfdb",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "wfdb",
+        "description": "wfdb",
+        "detail": "wfdb",
+        "documentation": {}
+    },
+    {
+        "label": "ast",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "ast",
+        "description": "ast",
+        "detail": "ast",
+        "documentation": {}
+    },
+    {
+        "label": "os",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "os",
+        "description": "os",
+        "detail": "os",
+        "documentation": {}
+    },
+    {
+        "label": "butter",
+        "importPath": "scipy.signal",
+        "description": "scipy.signal",
+        "isExtraImport": true,
+        "detail": "scipy.signal",
+        "documentation": {}
+    },
+    {
+        "label": "sosfiltfilt",
+        "importPath": "scipy.signal",
+        "description": "scipy.signal",
+        "isExtraImport": true,
+        "detail": "scipy.signal",
+        "documentation": {}
+    },
+    {
+        "label": "resample",
+        "importPath": "scipy.signal",
+        "description": "scipy.signal",
+        "isExtraImport": true,
+        "detail": "scipy.signal",
+        "documentation": {}
+    },
+    {
+        "label": "matplotlib.pyplot",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "matplotlib.pyplot",
+        "description": "matplotlib.pyplot",
+        "detail": "matplotlib.pyplot",
+        "documentation": {}
+    },
+    {
+        "label": "Image",
+        "importPath": "PIL",
+        "description": "PIL",
+        "isExtraImport": true,
+        "detail": "PIL",
+        "documentation": {}
+    },
+    {
+        "label": "load_raw_data",
+        "kind": 2,
+        "importPath": "ptb-xl.example_physionet",
+        "description": "ptb-xl.example_physionet",
+        "peekOfCode": "def load_raw_data(df, sampling_rate, path):\n    if sampling_rate == 100:\n        data = [wfdb.rdsamp(path+f) for f in df.filename_lr]\n    else:\n        data = [wfdb.rdsamp(path+f) for f in df.filename_hr]\n    data = np.array([signal for signal, meta in data])\n    return data\npath = 'path/to/ptbxl/'\nsampling_rate=100\n# load and convert annotation data",
+        "detail": "ptb-xl.example_physionet",
+        "documentation": {}
+    },
+    {
+        "label": "aggregate_diagnostic",
+        "kind": 2,
+        "importPath": "ptb-xl.example_physionet",
+        "description": "ptb-xl.example_physionet",
+        "peekOfCode": "def aggregate_diagnostic(y_dic):\n    tmp = []\n    for key in y_dic.keys():\n        if key in agg_df.index:\n            tmp.append(agg_df.loc[key].diagnostic_class)\n    return list(set(tmp))\n# Apply diagnostic superclass\nY['diagnostic_superclass'] = Y.scp_codes.apply(aggregate_diagnostic)\n# Split data into train and test\ntest_fold = 10",
+        "detail": "ptb-xl.example_physionet",
+        "documentation": {}
+    },
+    {
+        "label": "path",
+        "kind": 5,
+        "importPath": "ptb-xl.example_physionet",
+        "description": "ptb-xl.example_physionet",
+        "peekOfCode": "path = 'path/to/ptbxl/'\nsampling_rate=100\n# load and convert annotation data\nY = pd.read_csv(path+'ptbxl_database.csv', index_col='ecg_id')\nY.scp_codes = Y.scp_codes.apply(lambda x: ast.literal_eval(x))\n# Load raw signal data\nX = load_raw_data(Y, sampling_rate, path)\n# Load scp_statements.csv for diagnostic aggregation\nagg_df = pd.read_csv(path+'scp_statements.csv', index_col=0)\nagg_df = agg_df[agg_df.diagnostic == 1]",
+        "detail": "ptb-xl.example_physionet",
+        "documentation": {}
+    },
+    {
+        "label": "Y",
+        "kind": 5,
+        "importPath": "ptb-xl.example_physionet",
+        "description": "ptb-xl.example_physionet",
+        "peekOfCode": "Y = pd.read_csv(path+'ptbxl_database.csv', index_col='ecg_id')\nY.scp_codes = Y.scp_codes.apply(lambda x: ast.literal_eval(x))\n# Load raw signal data\nX = load_raw_data(Y, sampling_rate, path)\n# Load scp_statements.csv for diagnostic aggregation\nagg_df = pd.read_csv(path+'scp_statements.csv', index_col=0)\nagg_df = agg_df[agg_df.diagnostic == 1]\ndef aggregate_diagnostic(y_dic):\n    tmp = []\n    for key in y_dic.keys():",
+        "detail": "ptb-xl.example_physionet",
+        "documentation": {}
+    },
+    {
+        "label": "Y.scp_codes",
+        "kind": 5,
+        "importPath": "ptb-xl.example_physionet",
+        "description": "ptb-xl.example_physionet",
+        "peekOfCode": "Y.scp_codes = Y.scp_codes.apply(lambda x: ast.literal_eval(x))\n# Load raw signal data\nX = load_raw_data(Y, sampling_rate, path)\n# Load scp_statements.csv for diagnostic aggregation\nagg_df = pd.read_csv(path+'scp_statements.csv', index_col=0)\nagg_df = agg_df[agg_df.diagnostic == 1]\ndef aggregate_diagnostic(y_dic):\n    tmp = []\n    for key in y_dic.keys():\n        if key in agg_df.index:",
+        "detail": "ptb-xl.example_physionet",
+        "documentation": {}
+    },
+    {
+        "label": "X",
+        "kind": 5,
+        "importPath": "ptb-xl.example_physionet",
+        "description": "ptb-xl.example_physionet",
+        "peekOfCode": "X = load_raw_data(Y, sampling_rate, path)\n# Load scp_statements.csv for diagnostic aggregation\nagg_df = pd.read_csv(path+'scp_statements.csv', index_col=0)\nagg_df = agg_df[agg_df.diagnostic == 1]\ndef aggregate_diagnostic(y_dic):\n    tmp = []\n    for key in y_dic.keys():\n        if key in agg_df.index:\n            tmp.append(agg_df.loc[key].diagnostic_class)\n    return list(set(tmp))",
+        "detail": "ptb-xl.example_physionet",
+        "documentation": {}
+    },
+    {
+        "label": "agg_df",
+        "kind": 5,
+        "importPath": "ptb-xl.example_physionet",
+        "description": "ptb-xl.example_physionet",
+        "peekOfCode": "agg_df = pd.read_csv(path+'scp_statements.csv', index_col=0)\nagg_df = agg_df[agg_df.diagnostic == 1]\ndef aggregate_diagnostic(y_dic):\n    tmp = []\n    for key in y_dic.keys():\n        if key in agg_df.index:\n            tmp.append(agg_df.loc[key].diagnostic_class)\n    return list(set(tmp))\n# Apply diagnostic superclass\nY['diagnostic_superclass'] = Y.scp_codes.apply(aggregate_diagnostic)",
+        "detail": "ptb-xl.example_physionet",
+        "documentation": {}
+    },
+    {
+        "label": "agg_df",
+        "kind": 5,
+        "importPath": "ptb-xl.example_physionet",
+        "description": "ptb-xl.example_physionet",
+        "peekOfCode": "agg_df = agg_df[agg_df.diagnostic == 1]\ndef aggregate_diagnostic(y_dic):\n    tmp = []\n    for key in y_dic.keys():\n        if key in agg_df.index:\n            tmp.append(agg_df.loc[key].diagnostic_class)\n    return list(set(tmp))\n# Apply diagnostic superclass\nY['diagnostic_superclass'] = Y.scp_codes.apply(aggregate_diagnostic)\n# Split data into train and test",
+        "detail": "ptb-xl.example_physionet",
+        "documentation": {}
+    },
+    {
+        "label": "Y['diagnostic_superclass']",
+        "kind": 5,
+        "importPath": "ptb-xl.example_physionet",
+        "description": "ptb-xl.example_physionet",
+        "peekOfCode": "Y['diagnostic_superclass'] = Y.scp_codes.apply(aggregate_diagnostic)\n# Split data into train and test\ntest_fold = 10\n# Train\nX_train = X[np.where(Y.strat_fold != test_fold)]\ny_train = Y[(Y.strat_fold != test_fold)].diagnostic_superclass\n# Test\nX_test = X[np.where(Y.strat_fold == test_fold)]\ny_test = Y[Y.strat_fold == test_fold].diagnostic_superclass",
+        "detail": "ptb-xl.example_physionet",
+        "documentation": {}
+    },
+    {
+        "label": "test_fold",
+        "kind": 5,
+        "importPath": "ptb-xl.example_physionet",
+        "description": "ptb-xl.example_physionet",
+        "peekOfCode": "test_fold = 10\n# Train\nX_train = X[np.where(Y.strat_fold != test_fold)]\ny_train = Y[(Y.strat_fold != test_fold)].diagnostic_superclass\n# Test\nX_test = X[np.where(Y.strat_fold == test_fold)]\ny_test = Y[Y.strat_fold == test_fold].diagnostic_superclass",
+        "detail": "ptb-xl.example_physionet",
+        "documentation": {}
+    },
+    {
+        "label": "X_train",
+        "kind": 5,
+        "importPath": "ptb-xl.example_physionet",
+        "description": "ptb-xl.example_physionet",
+        "peekOfCode": "X_train = X[np.where(Y.strat_fold != test_fold)]\ny_train = Y[(Y.strat_fold != test_fold)].diagnostic_superclass\n# Test\nX_test = X[np.where(Y.strat_fold == test_fold)]\ny_test = Y[Y.strat_fold == test_fold].diagnostic_superclass",
+        "detail": "ptb-xl.example_physionet",
+        "documentation": {}
+    },
+    {
+        "label": "y_train",
+        "kind": 5,
+        "importPath": "ptb-xl.example_physionet",
+        "description": "ptb-xl.example_physionet",
+        "peekOfCode": "y_train = Y[(Y.strat_fold != test_fold)].diagnostic_superclass\n# Test\nX_test = X[np.where(Y.strat_fold == test_fold)]\ny_test = Y[Y.strat_fold == test_fold].diagnostic_superclass",
+        "detail": "ptb-xl.example_physionet",
+        "documentation": {}
+    },
+    {
+        "label": "X_test",
+        "kind": 5,
+        "importPath": "ptb-xl.example_physionet",
+        "description": "ptb-xl.example_physionet",
+        "peekOfCode": "X_test = X[np.where(Y.strat_fold == test_fold)]\ny_test = Y[Y.strat_fold == test_fold].diagnostic_superclass",
+        "detail": "ptb-xl.example_physionet",
+        "documentation": {}
+    },
+    {
+        "label": "y_test",
+        "kind": 5,
+        "importPath": "ptb-xl.example_physionet",
+        "description": "ptb-xl.example_physionet",
+        "peekOfCode": "y_test = Y[Y.strat_fold == test_fold].diagnostic_superclass",
+        "detail": "ptb-xl.example_physionet",
+        "documentation": {}
+    },
+    {
+        "label": "bandpass_and_resample",
+        "kind": 2,
+        "importPath": "preprocess",
+        "description": "preprocess",
+        "peekOfCode": "def bandpass_and_resample(\n    sig: np.ndarray,\n    fs_orig: float,\n    fs_target: float = 100.0,\n    lowcut: float = 0.5,\n    highcut: float = 40.0,\n) -> np.ndarray:\n    \"\"\"\n    3rd-order Butterworth bandpass at [lowcut, highcut] Hz,\n    then resample to fs_target if fs_orig != fs_target.",
+        "detail": "preprocess",
+        "documentation": {}
+    },
+    {
+        "label": "plot_and_save_ecg_image",
+        "kind": 2,
+        "importPath": "preprocess",
+        "description": "preprocess",
+        "peekOfCode": "def plot_and_save_ecg_image(\n    record_path: str,\n    output_path: str,\n    fs: float = 100.0,\n    window_sec: int = 2,\n    resize_px: int = 518,\n    dpi: int = 150,\n):\n    \"\"\"\n    1) Load a low-res (100 Hz) PTB-XL record",
+        "detail": "preprocess",
+        "documentation": {}
+    }
+]
