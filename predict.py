@@ -22,13 +22,13 @@ def predict_walk(path: str):
     X_windows = []
 
     if os.path.isfile(path):
-        if path.endswith('.npy'):
+        if path.endswith(".npy"):
             X_windows.append(predict(path))
     else:
         # Recursively find all files ending with _lr or .npy
         for root, _, files in os.walk(path):
             for file in files:
-                if file.endswith('_lr') or file.endswith('.npy'):
+                if file.endswith("_lr") or file.endswith(".npy"):
                     file_path = os.path.join(root, file)
                     print(f"Extracting from {file_path}")
                     X_windows.append(predict(file_path))
@@ -42,6 +42,7 @@ def predict_walk(path: str):
 
 if __name__ == "__main__":
     import sys
+
     if len(sys.argv) != 2:
         print("Usage: python predict.py <path>")
         sys.exit(1)

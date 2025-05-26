@@ -12,39 +12,18 @@ import torch
 import torchvision.transforms as T
 from tqdm import tqdm
 
+from finetune import get_finetuned_model
+
 
 def load_image(img: str) -> torch.Tensor:
     """
     Load an image and return a tensor that can be used as an input to DINOv2.
     """
-    # img = Image.open(img)
     # Since we saved image in "L" mode, maybe try converting to RGB
     img = Image.open(img).convert("RGB")
-    transformed_img = transform_image(img)[:3].unsqueeze(0)
-    return transformed_img
+    tensor = transform_image(img)
 
-
-def compute_embeddings(files: list) -> dict:
-    """
-    Create an index that contains all of the images in the specified list of files.
-    """
-    # Try to load existing embeddings first
-    if os.path.exists("all_embeddings.json"):
-        with open("all_embeddings.json", "r") as f:
-            return json.loads(f.read())
-
-    all_embeddings = {}
-
-    with torch.no_grad():
-        for i, file in enumerate(tqdm(files)):
-            embeddings = dinov2_vits14(load_image(file).to(device))
-            all_embeddings[file] = np.array(
-                embeddings[0].cpu().numpy()).reshape(1, -1).tolist()
-
-    with open("all_embeddings.json", "w") as f:
-        f.write(json.dumps(all_embeddings))
-
-    return all_embeddings
+    return tensor.unsqueeze(0)
 
 
 def download_from_roboflow():
@@ -82,48 +61,31 @@ def get_files_to_label():
     return labels
 
 
+# Must be ran from `python train.py`
+if __name__ != "__main__":
+    exit()
+
 labels = get_files_to_label()
 files = labels.keys()
 
-dinov2_vits14 = torch.hub.load("facebookresearch/dinov2", "dinov2_vits14")
-
-device = torch.device('cuda' if torch.cuda.is_available() else "cpu")
-
-dinov2_vits14.to(device)
-dinov2_vits14.eval()  # Optimization
-
-transform_image = T.Compose([
-    T.ToTensor(),
-    T.Resize(518),
-    T.CenterCrop(518),
-    # T.Normalize([0.5], [0.5])
-    # Normalize across three channels now
-    T.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5]),
-])  # Native is 518x518
-
-# SVM model
-# Originally: clf = svm.SVC(gamma='scale')
-if os.path.exists('svm_model.pkl'):
-    print("Loading saved SVM model...")
-
-    clf = pickle.load(open('svm_model.pkl', 'rb'))
-else:
-    print("Training new SVM model...")
-
-    with torch.no_grad():
-        embeddings = compute_embeddings(files)
-
-    clf = svm.SVC(kernel='linear', C=1.0)
-    y = [labels[file] for file in files]
-
-    embedding_list = list(embeddings.values())
-    clf.fit(np.array(embedding_list).reshape(-1, 384), y)
-
-    # Save the trained model
-    pickle.dump(clf, open('svm_model.pkl', 'wb'))
-
 # List of all classes
 classes = ["1AVB", "AFIB", "AFLT", "LBBB", "RBBB", "NORM", "OTHERS"]
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+model = get_finetuned_model(device, len(classes), train=True)
+
+
+transform_image = T.Compose(
+    [
+        T.ToTensor(),
+        T.Resize(518),
+        T.CenterCrop(518),
+        # T.Normalize([0.5], [0.5])
+        # Normalize across three channels now
+        T.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5]),
+    ]
+)  # Native is 518x518
 
 # Gather all (true_label, filepath) pairs
 all_samples = []
@@ -133,7 +95,7 @@ for cls in classes:
         print(f"No folder found for class {cls} at {folder}")
         continue
     for fname in os.listdir(folder):
-        if fname.lower().endswith(('.jpg', '.png')):
+        if fname.lower().endswith((".jpg", ".png")):
             all_samples.append((cls, os.path.join(folder, fname)))
 
 if not all_samples:
@@ -144,10 +106,13 @@ y_true, y_pred = [], []
 # Iterate with progress bar
 for true_cls, img_path in tqdm(all_samples, desc="Processing images"):
     # load_image should perform the same transforms as during training
-    new_image = load_image(img_path)
+    new_image = load_image(img_path).to(device)
     with torch.no_grad():
-        embedding = dinov2_vits14(new_image.to(device))
-        pred_cls = clf.predict(np.array(embedding[0].cpu()).reshape(1, -1))[0]
+        logits = model(new_image)
+        pred_idx = logits.squeeze(0).argmax().item()
+
+    idx_to_class = {i: cls for i, cls in enumerate(sorted(classes))}
+    pred_cls = idx_to_class[pred_idx]
 
     y_true.append(true_cls)
     y_pred.append(pred_cls)

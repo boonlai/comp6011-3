@@ -38,9 +38,9 @@ def bandpass_and_resample(
 def extract_window(
     record_path: str, fs_target: float = 100.0, window_sec: int = 2
 ) -> np.ndarray:
-    if record_path.endswith('.npy'):
+    if record_path.endswith(".npy"):
         sig = np.load(record_path)
-        meta = {'fs': fs_target}
+        meta = {"fs": fs_target}
     else:
         sig, meta = wfdb.rdsamp(record_path)
     sig_pp = bandpass_and_resample(sig, meta.get("fs", fs_target), fs_target)
