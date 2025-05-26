@@ -3,3 +3,6 @@ output
 ptb-xl
 *.pdf
 *.zip
+*.crdownload
+validation/
+test/
