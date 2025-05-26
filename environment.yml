@@ -1,0 +1,24 @@
+name: comp6011-task3
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.12
+  - pandas
+  - numpy
+  - scipy
+  - scikit-learn
+  - pillow
+  - tqdm
+  - matplotlib
+  - pytorch
+  - torchvision
+  - torchaudio
+  - pytorch-cuda=12.1
+  - pip
+  - pip:
+      - imbalanced-learn
+      - wfdb
+      - roboflow

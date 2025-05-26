@@ -1,7 +1,7 @@
-import glob
 import json
 import os
 import shutil
+import pickle
 
 import numpy as np
 from PIL import Image
@@ -28,6 +28,11 @@ def compute_embeddings(files: list) -> dict:
     """
     Create an index that contains all of the images in the specified list of files.
     """
+    # Try to load existing embeddings first
+    if os.path.exists("all_embeddings.json"):
+        with open("all_embeddings.json", "r") as f:
+            return json.loads(f.read())
+
     all_embeddings = {}
 
     with torch.no_grad():
@@ -42,31 +47,42 @@ def compute_embeddings(files: list) -> dict:
     return all_embeddings
 
 
-rf_workspace = "personal-g6wmi"
-rf_project = "research-kii6w"
-rf_version = 5
+def download_from_roboflow():
+    rf_workspace = "personal-g6wmi"
+    rf_project = "research-kii6w"
+    rf_version = 5
 
-roboflow.login()
+    roboflow.login()
 
-shutil.rmtree(f"Research-{rf_version}/", ignore_errors=True)
+    rf = roboflow.Roboflow()
 
-rf = roboflow.Roboflow()
+    project = rf.workspace(rf_workspace).project(rf_project)
+    project.version(rf_version).download("folder")
 
-project = rf.workspace(rf_workspace).project(rf_project)
-dataset = project.version(rf_version).download("folder")
+    # Move Research folder into data directory
+    shutil.move(f"Research-{rf_version}/", f"data/")
 
-cwd = os.getcwd()
 
-ROOT_DIR = os.path.join(cwd, f"Research-{rf_version}/train")
+def get_files_to_label():
+    if not os.path.exists("data/"):
+        download_from_roboflow()
 
-labels = {}
+    cwd = os.getcwd()
 
-for folder in os.listdir(ROOT_DIR):
-    for file in os.listdir(os.path.join(ROOT_DIR, folder)):
-        if file.endswith(".jpg"):
-            full_name = os.path.join(ROOT_DIR, folder, file)
-            labels[full_name] = folder
+    ROOT_DIR = os.path.join(cwd, f"data/train")
 
+    labels = {}
+
+    for folder in os.listdir(ROOT_DIR):
+        for file in os.listdir(os.path.join(ROOT_DIR, folder)):
+            if file.endswith(".jpg"):
+                full_name = os.path.join(ROOT_DIR, folder, file)
+                labels[full_name] = folder
+
+    return labels
+
+
+labels = get_files_to_label()
 files = labels.keys()
 
 dinov2_vits14 = torch.hub.load("facebookresearch/dinov2", "dinov2_vits14")
@@ -85,17 +101,26 @@ transform_image = T.Compose([
     T.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5]),
 ])  # Native is 518x518
 
-with torch.no_grad():  # Not required to compute embeddings
-    embeddings = compute_embeddings(files)
+# SVM model
+# Originally: clf = svm.SVC(gamma='scale')
+if os.path.exists('svm_model.pkl'):
+    print("Loading saved SVM model...")
 
-# clf = svm.SVC(gamma='scale')
-clf = svm.SVC(kernel='linear', C=1.0)  # Try a different kernel
+    clf = pickle.load(open('svm_model.pkl', 'rb'))
+else:
+    print("Training new SVM model...")
 
-y = [labels[file] for file in files]
+    with torch.no_grad():
+        embeddings = compute_embeddings(files)
 
-embedding_list = list(embeddings.values())
+    clf = svm.SVC(kernel='linear', C=1.0)
+    y = [labels[file] for file in files]
 
-clf.fit(np.array(embedding_list).reshape(-1, 384), y)
+    embedding_list = list(embeddings.values())
+    clf.fit(np.array(embedding_list).reshape(-1, 384), y)
+
+    # Save the trained model
+    pickle.dump(clf, open('svm_model.pkl', 'wb'))
 
 # List of all classes
 classes = ["1AVB", "AFIB", "AFLT", "LBBB", "RBBB", "NORM", "OTHERS"]
@@ -103,7 +128,7 @@ classes = ["1AVB", "AFIB", "AFLT", "LBBB", "RBBB", "NORM", "OTHERS"]
 # Gather all (true_label, filepath) pairs
 all_samples = []
 for cls in classes:
-    folder = f"Research-{rf_version}/test/{cls}"
+    folder = f"data/test/{cls}"
     if not os.path.isdir(folder):
         print(f"No folder found for class {cls} at {folder}")
         continue

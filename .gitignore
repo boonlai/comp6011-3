@@ -6,3 +6,6 @@ ptb-xl
 *.crdownload
 validation/
 test/
+Research-[0-9]/
+**/__pycache__/
+data/
