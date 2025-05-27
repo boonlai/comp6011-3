@@ -13,11 +13,13 @@ dependencies:
   - pillow
   - tqdm
   - matplotlib
-  - pytorch
-  - torchvision
-  - torchaudio
-  - pytorch-cuda=12.1
   - pip
+  - pip:
+      - --index-url https://download.pytorch.org/whl/cu126
+      - torch
+      - torchvision 
+      - torchaudio
+      - xformers
   - pip:
       - imbalanced-learn
       - wfdb

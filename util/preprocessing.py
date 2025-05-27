@@ -39,7 +39,9 @@ def extract_window(
     record_path: str, fs_target: float = 100.0, window_sec: int = 2
 ) -> np.ndarray:
     if record_path.endswith(".npy"):
-        sig = np.load(record_path)
+        # It's in shape of (12, n_samples)
+        # So we should transpose it
+        sig = np.load(record_path).T
         meta = {"fs": fs_target}
     else:
         sig, meta = wfdb.rdsamp(record_path)

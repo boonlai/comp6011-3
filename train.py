@@ -2,6 +2,7 @@ import json
 import os
 import shutil
 import pickle
+import multiprocessing
 
 import numpy as np
 from PIL import Image
@@ -13,6 +14,13 @@ import torchvision.transforms as T
 from tqdm import tqdm
 
 from finetune import get_finetuned_model
+
+# Must be ran from `python train.py`
+if __name__ != "__main__":
+    exit()
+
+torch.multiprocessing.set_start_method("spawn", force=True)
+multiprocessing.freeze_support()
 
 
 def load_image(img: str) -> torch.Tensor:
@@ -61,10 +69,6 @@ def get_files_to_label():
     return labels
 
 
-# Must be ran from `python train.py`
-if __name__ != "__main__":
-    exit()
-
 labels = get_files_to_label()
 files = labels.keys()
 
@@ -73,7 +77,7 @@ classes = ["1AVB", "AFIB", "AFLT", "LBBB", "RBBB", "NORM", "OTHERS"]
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-model = get_finetuned_model(device, len(classes), train=True)
+model = get_finetuned_model(device, len(classes))
 
 
 transform_image = T.Compose(

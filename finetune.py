@@ -4,6 +4,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 from torch.optim import Adam
 from torchvision import datasets, transforms
+from torch.amp import GradScaler, autocast
 from tqdm.auto import tqdm
 
 
@@ -12,7 +13,8 @@ def load_backbone(device):
     Load the DINOv2 backbone.
     """
     backbone = torch.hub.load("facebookresearch/dinov2", "dinov2_vits14")
-    backbone.to(device).eval()
+    backbone.to(device)
+    
     return backbone
 
 
@@ -47,14 +49,10 @@ class ECGClassifier(nn.Module):
         return out
 
 
-def get_dataloaders(train_dir, val_dir, batch=32, workers=4):
+def get_dataloaders(train_dir, val_dir, batch=64, workers=2):
     """
     Get the dataloaders for the training and validation sets.
     """
-    # Had to add this for Windows because it was crashing due to multi-processing issues
-    if os.name == "nt":
-        workers = 0
-
     tfm = transforms.Compose(
         [
             transforms.Resize(518),
@@ -68,22 +66,26 @@ def get_dataloaders(train_dir, val_dir, batch=32, workers=4):
     train_ds = datasets.ImageFolder(train_dir, tfm)
     val_ds = datasets.ImageFolder(val_dir, tfm)
 
-    t_loader = DataLoader(train_ds, batch_size=batch, shuffle=True, num_workers=workers)
-    v_loader = DataLoader(val_ds, batch_size=batch, shuffle=False, num_workers=workers)
+    t_loader = DataLoader(train_ds, batch_size=batch, shuffle=True, num_workers=workers, pin_memory=True)
+    v_loader = DataLoader(val_ds, batch_size=batch, shuffle=False, num_workers=workers, pin_memory=True)
 
     return t_loader, v_loader
 
 
 def train_model(model, train_loader, val_loader, device, epochs=14, lr=1e-6, ckpt=None):
     """
-    Train the model.
+    Train the head of the model.
     """
-    criterion, optim = nn.CrossEntropyLoss(), Adam(model.parameters(), lr=lr)
+    model_params = model.parameters()
+    criterion = nn.CrossEntropyLoss(label_smoothing=0.1)
+    optim = Adam(model_params, lr=lr)
+    scaler = GradScaler(device)
     best = 0.0
 
     # Loop over epochs
     for ep in range(epochs):
         model.train()
+        model.backbone.train()
 
         # Show training progress
         bar = tqdm(train_loader, desc=f"Epoch {ep+1}/{epochs}", leave=False)
@@ -91,10 +93,15 @@ def train_model(model, train_loader, val_loader, device, epochs=14, lr=1e-6, ckp
 
         for x, y in bar:
             x, y = x.to(device), y.to(device)
+            # Use mixed precision training
             optim.zero_grad()
-            loss = criterion(model(x), y)
-            loss.backward()
-            optim.step()
+            with autocast(device.type):
+                loss = criterion(model(x), y)
+            scaler.scale(loss).backward()
+            scaler.step(optim)
+            scaler.update()
+            # loss.backward()
+            # optim.step()
             running += loss.item() * x.size(0)
 
             # Include loss for visualization
@@ -102,6 +109,7 @@ def train_model(model, train_loader, val_loader, device, epochs=14, lr=1e-6, ckp
 
         # Validation step
         model.eval()
+        model.backbone.eval()
         correct = total = 0
         with torch.no_grad():
             for x, y in val_loader:
@@ -144,4 +152,5 @@ def get_finetuned_model(
         train_model(model, t_loader, v_loader, device, epochs=14, lr=1e-6, ckpt=ckpt)
 
     model.eval()
+    model.backbone.eval()
     return model
