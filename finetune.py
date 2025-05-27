@@ -14,7 +14,7 @@ def load_backbone(device):
     """
     backbone = torch.hub.load("facebookresearch/dinov2", "dinov2_vits14")
     backbone.to(device)
-    
+
     return backbone
 
 
@@ -53,6 +53,10 @@ def get_dataloaders(train_dir, val_dir, batch=64, workers=2):
     """
     Get the dataloaders for the training and validation sets.
     """
+    # Check if running on Windows and set workers to 0 to avoid multiprocessing issues
+    if os.name == "nt":
+        workers = 0
+
     tfm = transforms.Compose(
         [
             transforms.Resize(518),
@@ -66,8 +70,12 @@ def get_dataloaders(train_dir, val_dir, batch=64, workers=2):
     train_ds = datasets.ImageFolder(train_dir, tfm)
     val_ds = datasets.ImageFolder(val_dir, tfm)
 
-    t_loader = DataLoader(train_ds, batch_size=batch, shuffle=True, num_workers=workers, pin_memory=True)
-    v_loader = DataLoader(val_ds, batch_size=batch, shuffle=False, num_workers=workers, pin_memory=True)
+    t_loader = DataLoader(
+        train_ds, batch_size=batch, shuffle=True, num_workers=workers, pin_memory=True
+    )
+    v_loader = DataLoader(
+        val_ds, batch_size=batch, shuffle=False, num_workers=workers, pin_memory=True
+    )
 
     return t_loader, v_loader
 

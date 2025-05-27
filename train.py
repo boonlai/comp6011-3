@@ -1,13 +1,9 @@
-import json
 import os
 import shutil
-import pickle
 import multiprocessing
 
-import numpy as np
 from PIL import Image
 import roboflow
-from sklearn import svm
 from sklearn.metrics import accuracy_score
 import torch
 import torchvision.transforms as T
@@ -18,9 +14,6 @@ from finetune import get_finetuned_model
 # Must be ran from `python train.py`
 if __name__ != "__main__":
     exit()
-
-torch.multiprocessing.set_start_method("spawn", force=True)
-multiprocessing.freeze_support()
 
 
 def load_image(img: str) -> torch.Tensor:
