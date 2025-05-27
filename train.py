@@ -1,8 +1,6 @@
 import os
 import shutil
-import multiprocessing
 
-from PIL import Image
 import roboflow
 from sklearn.metrics import accuracy_score
 import torch
@@ -10,24 +8,14 @@ import torchvision.transforms as T
 from tqdm import tqdm
 
 from finetune import get_finetuned_model
+from util.preprocessing import load_image
 
 # Must be ran from `python train.py`
 if __name__ != "__main__":
     exit()
 
 
-def load_image(img: str) -> torch.Tensor:
-    """
-    Load an image and return a tensor that can be used as an input to DINOv2.
-    """
-    # Since we saved image in "L" mode, maybe try converting to RGB
-    img = Image.open(img).convert("RGB")
-    tensor = transform_image(img)
-
-    return tensor.unsqueeze(0)
-
-
-def download_from_roboflow():
+def download_from_roboflow() -> None:
     rf_workspace = "personal-g6wmi"
     rf_project = "research-kii6w"
     rf_version = 5
@@ -43,7 +31,7 @@ def download_from_roboflow():
     shutil.move(f"Research-{rf_version}/", f"data/")
 
 
-def get_files_to_label():
+def get_files_to_label() -> dict[str, str]:
     if not os.path.exists("data/"):
         download_from_roboflow()
 
@@ -70,19 +58,7 @@ classes = ["1AVB", "AFIB", "AFLT", "LBBB", "RBBB", "NORM", "OTHERS"]
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-model = get_finetuned_model(device, len(classes))
-
-
-transform_image = T.Compose(
-    [
-        T.ToTensor(),
-        T.Resize(518),
-        T.CenterCrop(518),
-        # T.Normalize([0.5], [0.5])
-        # Normalize across three channels now
-        T.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5]),
-    ]
-)  # Native is 518x518
+model = get_finetuned_model(device, len(classes), train=True)
 
 # Gather all (true_label, filepath) pairs
 all_samples = []

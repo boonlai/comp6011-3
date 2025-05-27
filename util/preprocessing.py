@@ -74,3 +74,25 @@ def plot_and_save_ecg_window(
     img = img.resize((resize_px, resize_px), Image.BILINEAR)
     img.save(output_path)
     os.remove(tmp)
+
+
+def load_image(img: str) -> torch.Tensor:
+    """
+    Load an image and return a tensor that can be used as an input to DINOv2.
+    """
+    transform_image = T.Compose(
+        [
+            T.ToTensor(),
+            T.Resize(518),
+            T.CenterCrop(518),
+            # T.Normalize([0.5], [0.5])
+            # Normalize across three channels now
+            T.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5]),
+        ]
+    )  # Native is 518x518
+
+    # Since we saved image in "L" mode, maybe try converting to RGB
+    img = Image.open(img).convert("RGB")
+    tensor = transform_image(img)
+
+    return tensor.unsqueeze(0)

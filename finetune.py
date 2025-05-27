@@ -154,10 +154,12 @@ def get_finetuned_model(
     if not train and os.path.exists(ckpt):
         print(f"Loading fine-tuned weights from {ckpt}")
         model.load_state_dict(torch.load(ckpt, map_location=device))
-    else:
+    elif train:
         print("Fine-tuning DINOv2 …")
         t_loader, v_loader = get_dataloaders("data/train", "data/valid")
         train_model(model, t_loader, v_loader, device, epochs=14, lr=1e-6, ckpt=ckpt)
+    else:
+        raise ValueError("The fine-tune model has not been trained yet.")
 
     model.eval()
     model.backbone.eval()
