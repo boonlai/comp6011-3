@@ -151,7 +151,7 @@ def get_finetuned_model(
     ckpt = checkpoint or f"finetuned_model_{n_classes}.pt"
     model = ECGClassifier(load_backbone(device), n_classes).to(device)
 
-    if not train and os.path.exists(ckpt):
+    if not train or os.path.exists(ckpt):
         print(f"Loading fine-tuned weights from {ckpt}")
         model.load_state_dict(torch.load(ckpt, map_location=device))
     elif train:

@@ -5,7 +5,9 @@ import wfdb
 import numpy as np
 import matplotlib.pyplot as plt
 import os
+import torch
 from PIL import Image
+from torchvision import transforms as T
 from scipy.signal import butter, sosfiltfilt, resample
 
 
