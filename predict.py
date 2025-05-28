@@ -79,7 +79,6 @@ def predict_walk(path: str):
             for file in files:
                 if file.endswith(".dat") or file.endswith(".npy"):
                     file_path = os.path.join(root, file)
-                    print(f"Extracting from {file_path}")
                     file_paths.append(file_path)
 
     if len(file_paths) == 0:
