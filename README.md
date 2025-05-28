@@ -30,7 +30,7 @@ This repository should already come with a pre-trained checkpoint file `finetune
 ### Training
 
 1. If you are using [Roboflow](https://roboflow.com/), modify `rf_workspace` `rf_project` `rf_version`
-2. Delete the existing `finetuned_model_7.py` or it will simply evaluate it against the test data
+2. Delete the existing `finetuned_model_7.pt` or it will simply evaluate it against the test data
 3. Run the training script `python train.py`
 
 ### Predicting
