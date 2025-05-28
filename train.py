@@ -90,16 +90,33 @@ for true_cls, img_path in tqdm(all_samples, desc="Processing images"):
     y_true.append(true_cls)
     y_pred.append(pred_cls)
 
-# Compute and print per-class accuracy
-print("\nPer-class accuracy:")
+# Compute and print per-class metrics
+print("\nPer-class metrics and derived scores:")
 for cls in classes:
-    idxs = [i for i, t in enumerate(y_true) if t == cls]
-    if not idxs:
-        print(f"  {cls}: no samples")
-        continue
-    acc = sum(1 for i in idxs if y_pred[i] == cls) / len(idxs)
-    print(f"  {cls}: {acc:.2%}")
+    tp = sum(1 for t, p in zip(y_true, y_pred) if t == cls and p == cls)
+    fp = sum(1 for t, p in zip(y_true, y_pred) if t != cls and p == cls)
+    fn = sum(1 for t, p in zip(y_true, y_pred) if t == cls and p != cls)
+    tn = sum(1 for t, p in zip(y_true, y_pred) if t != cls and p != cls)
 
-# Overall accuracy
+    # Derived metrics (guard against zero-division)
+    precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
+    sensitivity = tp / (tp + fn) if (tp + fn) > 0 else 0.0  # a.k.a. recall
+    specificity = tn / (tn + fp) if (tn + fp) > 0 else 0.0
+    f1 = (
+        2 * precision * sensitivity / (precision + sensitivity)
+        if (precision + sensitivity) > 0
+        else 0.0
+    )
+    accuracy = (tp + tn) / (tp + tn + fp + fn) if (tp + tn + fp + fn) > 0 else 0.0
+
+    print(f"  {cls}:")
+    print(f"    TP={tp}, TN={tn}, FP={fp}, FN={fn}")
+    print(f"    Precision  = {precision:.2f}")
+    print(f"    Sensitivity = {sensitivity:.2f}")
+    print(f"    Specificity = {specificity:.2f}")
+    print(f"    F1‐score    = {f1:.2f}")
+    print(f"    Accuracy    = {accuracy:.2f}")
+
+# Overall accuracy (as before)
 overall = accuracy_score(y_true, y_pred)
-print(f"\nOverall accuracy: {overall:.2%}")
+print(f"\nOverall accuracy: {overall:.2f}")
