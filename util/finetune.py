@@ -8,11 +8,13 @@ from torch.amp import GradScaler, autocast
 from tqdm.auto import tqdm
 
 
-def load_backbone(device):
+def load_backbone(device, verbose=True):
     """
     Load the DINOv2 backbone.
     """
-    backbone = torch.hub.load("facebookresearch/dinov2", "dinov2_vits14")
+    backbone = torch.hub.load(
+        "facebookresearch/dinov2", "dinov2_vits14", verbose=verbose
+    )
     backbone.to(device)
 
     return backbone
@@ -143,19 +145,28 @@ def train_model(model, train_loader, val_loader, device, epochs=14, lr=1e-6, ckp
 
 
 def get_finetuned_model(
-    device, n_classes, *, checkpoint=None, train=False
+    device,
+    n_classes,
+    *,
+    checkpoint=None,
+    train=False,
+    silent=False,
 ) -> nn.Module:
     """
     Get the finetuned model, or train one if specified or the checkpoint doesn't exist.
     """
     ckpt = checkpoint or f"finetuned_model_{n_classes}.pt"
-    model = ECGClassifier(load_backbone(device), n_classes).to(device)
+    model = ECGClassifier(load_backbone(device, not silent), n_classes).to(device)
 
     if not train or os.path.exists(ckpt):
-        print(f"Loading fine-tuned weights from {ckpt}")
+        if not silent:
+            print(f"Loading fine-tuned weights from {ckpt}")
+
         model.load_state_dict(torch.load(ckpt, map_location=device))
     elif train:
-        print("Fine-tuning DINOv2 …")
+        if not silent:
+            print("Fine-tuning DINOv2 …")
+
         t_loader, v_loader = get_dataloaders("data/train", "data/valid")
         train_model(model, t_loader, v_loader, device, epochs=14, lr=1e-6, ckpt=ckpt)
     else:

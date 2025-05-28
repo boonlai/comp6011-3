@@ -1,18 +1,17 @@
 import os
 import shutil
-
 import roboflow
-from sklearn.metrics import accuracy_score
 import torch
-import torchvision.transforms as T
-from tqdm import tqdm
 
-from finetune import get_finetuned_model
+from tqdm import tqdm
+from sklearn.metrics import accuracy_score
+from util.finetune import get_finetuned_model
 from util.preprocessing import load_image
 
 # Must be ran from `python train.py`
 if __name__ != "__main__":
-    exit()
+    print("Usage: python train.py")
+    exit(1)
 
 
 def download_from_roboflow() -> None:
