@@ -1,0 +1,15 @@
+Epoch  1  train loss 1.0322  val acc 84.051%
+Epoch  2  train loss 0.7299  val acc 88.276%
+Epoch  3  train loss 0.6553  val acc 90.492%
+Epoch  4  train loss 0.6146  val acc 91.574%
+Epoch  5  train loss 0.5899  val acc 91.497%
+Epoch  6  train loss 0.5717  val acc 91.420%                                                               
+Epoch  7  train loss 0.5529  val acc 92.450%                                                               
+Epoch  8  train loss 0.5369  val acc 92.425%
+Epoch  9  train loss 0.5241  val acc 92.785%                                                               
+Epoch 10  train loss 0.5115  val acc 91.961%
+Epoch 11  train loss 0.4986  val acc 92.425%                                                               
+Epoch 12  train loss 0.4862  val acc 92.347%                                                               
+Epoch 13  train loss 0.4755  val acc 91.935%                                                               
+Epoch 14  train loss 0.4740  val acc 92.734%                                                               
+Best val acc: 92.785%
