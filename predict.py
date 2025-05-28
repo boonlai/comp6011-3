@@ -27,7 +27,7 @@ if __name__ == "__main__":
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
-def predict(file_path: str) -> str:
+def predict(file_path: str) -> tuple[str, float]:
     """
     Given the path to an ECG record (.dat/.npy), predict the class of the record.
     """
@@ -58,10 +58,11 @@ def predict(file_path: str) -> str:
         pred_idx = logits.squeeze(0).argmax().item()
 
     idx_to_class = {i: cls for i, cls in enumerate(sorted(classes))}
+    confidence = torch.softmax(logits.squeeze(0), dim=0).max().item()
     pred_cls = idx_to_class[pred_idx]
 
-    # Return the predicted class
-    return pred_cls
+    # Return the predicted class and its confidence
+    return pred_cls, confidence
 
 
 def predict_walk(path: str):
@@ -100,9 +101,9 @@ def predict_walk(path: str):
     print("ECG PREDICTION RESULTS".center(60))
     print("=" * 60)
 
-    for file_path, predicted_class in predictions:
+    for file_path, (predicted_class, confidence) in predictions:
         filename = os.path.basename(file_path)
-        print(f"{filename:<30} -> {predicted_class}")
+        print(f"{filename:<30} -> {predicted_class} ({confidence:.2%})")
 
     print("=" * 60)
     print(f"Total files processed: {len(predictions)}")
