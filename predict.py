@@ -12,15 +12,6 @@ from util.preprocessing import extract_window, plot_and_save_ecg_window, load_im
 from util.grad_cam import grad_cam
 
 if __name__ == "__main__":
-    """
-    Extract windows from ECG records in a directory or single file, and output their predictions.
-
-    Args:
-        path: Path to directory containing records or direct path to .npy file
-
-    Returns:
-        np.ndarray: Stacked windows array
-    """
     if len(sys.argv) != 2:
         print("Usage: python predict.py <path>")
         sys.exit(1)
@@ -31,7 +22,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def predict(file_path: str) -> tuple[str, float]:
     """
-    Given the path to an ECG record (.dat/.npy), predict the class of the record.
+    Given the path to an ECG record (.dat/.npy), predict the class of the record and output the Grad-CAM image.
     """
     # Remove extension from .dat if present
     if file_path.endswith(".dat"):
@@ -62,7 +53,7 @@ def predict(file_path: str) -> tuple[str, float]:
     confidence = torch.softmax(logits.squeeze(0), dim=0).max().item()
     pred_cls = idx_to_class[pred_idx]
 
-    # Generate Grad-CAM
+    # Generate Grad-CAM image
     grad_cam(
         model,
         input_tensor=image_data,
